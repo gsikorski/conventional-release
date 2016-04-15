@@ -1,0 +1,39 @@
+{
+  "name": "conventional-release",
+  "version": "1.0.0",
+  "description": "Module to complete release process",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "bin": {
+    "conventional-release": "./bin/release.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/gsikorski/conventional-release.git"
+  },
+  "keywords": [
+    "release",
+    "conventional",
+    "commit",
+    "analyze",
+    "management"
+  ],
+  "author": "Greg Sikorski",
+  "license": "MIT",
+  "devDependencies": {
+    "cz-conventional-changelog": "^1.1.5"
+  },
+  "config": {
+    "commitizen": {
+      "path": "./node_modules/cz-conventional-changelog"
+    }
+  },
+  "dependencies": {
+    "conventional-changelog": "^1.1.0",
+    "conventional-recommended-bump": "^0.2.0",
+    "denodeify": "^1.2.1",
+    "mversion": "^1.10.1"
+  }
+}
