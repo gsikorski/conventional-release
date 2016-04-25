@@ -43,20 +43,6 @@ return new Promise((resolve, reject) => {
         resolve();
     });
 }).then(() => {
-    return new Promise((resolve, reject) => {
-        console.log('Generating changelog...');
-        let stream = fs.createWriteStream('CHANGELOG.md');
-        stream.on('error', (err) => {
-            reject(err);
-        });
-        stream.on('close', () => {
-            resolve();
-        });
-        conventionalChangelog({
-                preset: 'angular'
-            }).pipe(stream);
-    });
-}).then(() => {
     console.log('Calculating version number...');
     return denodeify(conventionalRecommendedBump)({
             preset: 'angular'
@@ -65,6 +51,32 @@ return new Promise((resolve, reject) => {
     console.log('Releasing new version...');
     return denodeify(mversion.update)({
         version: whatBump.releaseAs
+    });
+}).then((mver) => {
+    console.log('Generating changelog...');
+
+    return new Promise((resolve, reject) => {
+        let stream = fs.createWriteStream('CHANGELOG.md.new');
+        conventionalChangelog({
+                preset: 'angular'
+            }).pipe(stream);
+        stream.on('error', (err) => {
+            reject(err);
+        });
+        stream.on('close', () => {
+            // Append old CHANGELOG.md
+            let old = '';
+            try {
+                old += fs.readFileSync('CHANGELOG.md');
+            } catch (err) {
+                if (!err || err.code !== 'ENOENT') {
+                    throw err;
+                }
+            }
+            fs.appendFileSync('CHANGELOG.md.new', old);
+            fs.renameSync('CHANGELOG.md.new', 'CHANGELOG.md');
+            resolve(mver);
+        });
     });
 }).then((mver) => {
     shell(`git add CHANGELOG.md ${mver.updatedFiles.join(' ')}`);
@@ -91,6 +103,10 @@ return new Promise((resolve, reject) => {
         });
     });
 }).then(process.exit, (err) => {
-    console.error(err.stack);
+    if (err instanceof Error) {
+        console.error(err.stack);
+    } else if (err) {
+        console.error(err);
+    }
     process.exit(1);
 });
