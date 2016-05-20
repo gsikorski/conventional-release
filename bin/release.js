@@ -20,7 +20,7 @@ if (branch !== 'master') {
     throw Error('You must be on master branch to make a release!');
 }
 let status = shell('git describe').toString().trim()
-    .match(/^(v\d+\.\d+\.\d+)(-(\d)-.*)?$/);
+    .match(/^(v\d+\.\d+\.\d+)(-(\d+)-.*)?$/);
 if (!status) {
     throw Error(`Last tag is invalid!`);
 }
